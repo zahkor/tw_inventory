@@ -1,9 +1,10 @@
 function onOpen() {
     var ui = SpreadsheetApp.getUi();
-    ui.createMenu('Update spreadsheets').addItem('Import data from SWGOH.GG', 'importDatas').addToUi();
+    ui.createMenu('Update spreadsheet').addItem('Import data from SWGOH.GG', 'importDatas').addToUi();
 }
 
 async function importDatas() {
+    // applyConditionalFormatting();
     const guildDatas = fetchGuildInformations();
     const guildMembers = await fetchGuildMembers(guildDatas);
 
@@ -42,23 +43,40 @@ async function importDatas() {
 
     const spreadSheet = SpreadsheetApp.getActive();
     const inventoryTab = spreadSheet.getSheetByName('Inventory');
-    let rowRange: number = 6;
-    console.log('unitCounts', unitCounts);
-    console.log('unitCounts', omicronUnitCounts);
-    console.log('unitCounts', memberDetails);
+
+    let rowRangeForTotalCounts: number = 6;
     Object.values(twBaseIdUnitEnum).forEach((unit) => {
-        inventoryTab?.getRange(rowRange, 2).setValue(unitCounts[unit]);
-        rowRange++;
+        inventoryTab?.getRange(rowRangeForTotalCounts, 2).setValue(unitCounts[unit]);
+        rowRangeForTotalCounts++;
     });
 
     Object.values(twBaseIdUnitWithOmicronEnum).forEach((unit) => {
-        inventoryTab?.getRange(rowRange, 2).setValue(omicronUnitCounts[unit]);
-        rowRange++;
+        inventoryTab?.getRange(rowRangeForTotalCounts, 2).setValue(omicronUnitCounts[unit]);
+        rowRangeForTotalCounts++;
     });
 
     let memberColumn: number = 3;
     for (const member of memberDetails) {
         inventoryTab?.getRange(3, memberColumn).setValue(member.name);
+        let row = 6;
+        Object.values(twBaseIdUnitEnum).forEach((baseUnit) => {
+            let unit = member.units.baseUnits[baseUnit];
+            if (unit == undefined) {
+                inventoryTab?.getRange(row, memberColumn).setBackground('#FF0000');
+            } else {
+                inventoryTab?.getRange(row, memberColumn).setBackground('#00FF00'); // Green background
+            }
+            row++;
+        });
+        Object.values(twBaseIdUnitWithOmicronEnum).forEach((omicronUnit) => {
+            let unit = member.units.memberOmicronUnits[omicronUnit];
+            if (unit == undefined) {
+                inventoryTab?.getRange(row, memberColumn).setBackground('#FF0000');
+            } else {
+                inventoryTab?.getRange(row, memberColumn).setBackground('#00FF00'); // Green background
+            }
+            row++;
+        });
         memberColumn++;
     }
 }
