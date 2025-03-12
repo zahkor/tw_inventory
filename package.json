@@ -1,7 +1,9 @@
 {
   "dependencies": {
     "@google/clasp": "^3.0.1-alpha1",
-    "@types/google-apps-script": "^1.0.97",
     "prettier": "^3.5.3"
+  },
+  "devDependencies": {
+    "@types/google-apps-script": "^1.0.97"
   }
 }
